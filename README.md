@@ -98,11 +98,12 @@ depths.drop('z', axis=1, inplace=True) # 去掉z
 depths['fold'] = (list(range(0,5)) * depths.shape[0])[:depths.shape[0]] # 0-4循环22000次后取长度到22000。
 
 train_df = pd.read_csv('tgs-salt-identification-challenge/train.csv')
-train_df = train_df.merge(depths)
-dist = []
+train_df = train_df.merge(depths) #合并，基于指定列的横向合并拼接。
+dist = [] # 字典
 for id in train_df.id.values:
   img = cv2.imread(f'tgs-salt-identification-challenge/train/images/{id}.png', cv2.IMREAD_GRAYSCALE)
-  dist.append(np.unique(img).shape[0])
+  #cv2.IMREAD_GRAYSCALE以灰度模式读取图像
+  dist.append(np.unique(img).shape[0])# append 在列表末尾添加新的对象。np.unique函数去除其中重复的元素,并从小到大排列。（提取图像特征值）
 train_df['unique_pixels'] = dist
 ```
 <img src="https://github.com/Richardhkc/Richard/blob/main/Learn%20history/22000times.png?raw=true" width="100px">
