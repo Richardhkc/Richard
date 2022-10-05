@@ -25,7 +25,7 @@ n_fold = 5 # k折交叉验证，这里取5的意思是利用五折交叉验证�
 #步骤是：1、将所有数据集分成五份，不重复地每次取其中一份做测试集，用其他四份做训练集训练模型，之后计算在该模型在测试集上的MSEi（均方误差，方差，Mean squared error）MSE越小，说明预测模型描述实验数据具有更好的精确度。
 pad_left = 27 # 左部补零列数（padding规则，vaild：边缘不补充。Same：边缘补充）
 pad_right = 27 # 右部补零列数
-fine_size = 202
+fine_size = 202 # 与pad-left和right加一起等于256，应该是图片像素？
 batch_size = 18 # 批大小/批尺寸 batch_size：即一次训练所抓取的数据样本数量。batch_size将影响到模型的优化程度和速度。
 epoch = 300 # 时期，一个时期=所有训练样本的一个正向传递和一个反向传递。（单次epoch=（全部训练样本/batchsize） / iteration（迭代） =1）
 snapshot = 6 # 每六轮保存一次模型，防止停电中断训练。
@@ -88,3 +88,23 @@ pad_height:代表高度方向上要填充0的行数。
 pad_width:代表宽度方向要填充0的列数。
 
 pad_top、pad_bottom、pad_left、pad_right分别代表上、下、左、右这4个方向填充0的行、列数。
+
+## Split（分割）
+### 代码
+```Python
+depths = pd.read_csv('tgs-salt-identification-challenge/depths.csv') #读取数据
+depths.sort_values('z', inplace=True) # 把z排序
+depths.drop('z', axis=1, inplace=True) # 去掉z
+depths['fold'] = (list(range(0,5)) * depths.shape[0])[:depths.shape[0]] # 0-4循环22000次后取长度到22000。
+
+train_df = pd.read_csv('tgs-salt-identification-challenge/train.csv')
+train_df = train_df.merge(depths)
+dist = []
+for id in train_df.id.values:
+  img = cv2.imread(f'tgs-salt-identification-challenge/train/images/{id}.png', cv2.IMREAD_GRAYSCALE)
+  dist.append(np.unique(img).shape[0])
+train_df['unique_pixels'] = dist
+```
+![0-4循环22000次后取长度到22000](/Users/huakaichen/Desktop/PYTHON/competition_data/22000次循环.png )
+
+
