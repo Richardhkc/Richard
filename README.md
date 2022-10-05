@@ -98,7 +98,7 @@ depths.drop('z', axis=1, inplace=True) # 去掉z
 depths['fold'] = (list(range(0,5)) * depths.shape[0])[:depths.shape[0]] # 0-4循环22000次后取长度到22000。
 
 train_df = pd.read_csv('tgs-salt-identification-challenge/train.csv')
-train_df = train_df.merge(depths) #合并，基于指定列的横向合并拼接。
+train_df = train_df.merge(depths) # 合并，基于指定列的横向合并拼接。
 dist = [] # 字典
 for id in train_df.id.values:
   img = cv2.imread(f'tgs-salt-identification-challenge/train/images/{id}.png', cv2.IMREAD_GRAYSCALE)
