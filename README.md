@@ -105,6 +105,6 @@ for id in train_df.id.values:
   dist.append(np.unique(img).shape[0])
 train_df['unique_pixels'] = dist
 ```
-![0-4循环22000次后取长度到22000](https://github.com/Richardhkc/Richard/blob/main/22000times.png?raw=true )
+![0-4循环22000次后取长度到22000](https://github.com/Richardhkc/Richard/blob/main/Learn%20history/22000times.png?raw=true)
 
 
