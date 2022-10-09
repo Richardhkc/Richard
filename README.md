@@ -108,3 +108,67 @@ train_df['unique_pixels'] = dist
 ```
 <img src="https://github.com/Richardhkc/Richard/blob/main/Learn%20history/22000times.png?raw=true" width="100px">
 
+## dataset
+## 代码
+``` Python
+def trainImageFetch(images_id):
+  image_train = np.zeros((images_id.shape[0], 101, 101), dtype=np.float32)#这里的np.float32是将改变数值数据类型。np.zeros(shape,dtype=float,order='C')
+  mask_train = np.zeros((images_id.shape[0], 101, 101), dtype=np.float32)
+
+  for idx, image_id in tqdm(enumerate(images_id), total=images_id.shape[0]):#shape【0】表示输出行数
+    image_path = os.path.join(train_image_dir, image_id+'.png')#设置文件保存路径
+    mask_path = os.path.join(train_mask_dir, image_id+'.png')#设置文件保存路径
+
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255
+    mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255
+
+    image_train[idx] = image
+    mask_train[idx] = mask
+  
+  return image_train, mask_train
+
+  def testImageFetch(test_id):
+  image_test = np.zeros((len(test_id), 101, 101), dtype=np.float32)
+
+  for idx, image_id in tqdm(enumerate(test_id), total=len(test_id)):
+    image_path = os.path.join(test_image_dir, image_id+'.png')
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255#/255限制输入在0-1
+    image_test[idx] = image
+
+  return image_test
+
+  def do_resize2(image, mask, H, W):#图像缩放
+  image = cv2.resize(image, dsize=(W,H))
+  mask = cv2.resize(mask, dsize=(W,H))
+  return image, mask
+
+  def do_center_pad(image, pad_left, pad_right):
+  return np.pad(image, (pad_left, pad_right), 'edge')
+```
+---
+* <font color=red>**np.float32**</font><br>是将改变数值数据类型
+* <font color=red>**np.zeros（）**</font><br>(shape,dtype=float,order='C')提供给定形状和类型的新数组，并用0填充。<font color=red>生成全零数组</font><br>
+**shape**参数用于定义数组的尺寸。<br>
+参数用于我们要在其中创建数组的形状, 例如(3, 2)或2。<br>**dtype**参数用于定义数组的所需数据类型。默认情况下, 数据类型为numpy.float64。此参数对于定义不是必需的。<br>
+**order**参数用于定义我们要在内存中存储数据的顺序, 即行主要(C样式)或列主要(Fortran样式)
+* <font color=red>**os.path.join（）**</font><br>
+连接两个或更多的路径名组件
+* <font color=red>**tqdm（）**</font><br>
+用来显示进度条模块
+* <font color=red>**enumerate（）**</font><br>
+enumerate() 函数用于将一个可遍历的数据对象(如列表、元组或字符串)组合为一个索引序列，同时列出数据和数据下标，一般用在 for 循环当中。
+* <font color=red>**astype（）**</font><br>
+转换数据类型
+* <font color=red>**cv2.resize（）**</font><br>
+缩放图像：cv2.resize(src, dsize[, dst[, fx[, fy[, interpolation]]]])<br>
+
+|参数|描述|
+|---|---| 
+src|【必需】原图像
+dsize|【必需】输出图像所需大小
+fx|【可选】沿水平轴的比例因子
+fy|【可选】沿垂直轴的比例因子
+interpolation|【可选】插值方式
+
+* <font color=red>**astype（）**</font><br>
+* <font color=red>**astype（）**</font><br>
