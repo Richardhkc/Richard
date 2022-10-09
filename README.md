@@ -143,7 +143,67 @@ def trainImageFetch(images_id):
   return image, mask
 
   def do_center_pad(image, pad_left, pad_right):
-  return np.pad(image, (pad_left, pad_right), 'edge')
+  return np.pad(image, (pad_left, pad_right), 'edge')# edge 边缘值填充 。在卷积神经网络中，为了避免因为卷积运算导致输出图像缩小和图像边缘信息丢失，常常采用图像边缘填充技术，即在图像四周边缘填充0，使得卷积运算后图像大小不会缩小，同时也不会丢失边缘和角落的信息。
+
+  def do_center_pad2(image, mask, pad_left, pad_right):
+  image = do_center_pad(image, pad_left, pad_right)
+  mask = do_center_pad(mask, pad_left, pad_right)
+  return image, mask
+
+  class SaltDataset(Dataset):#定义类
+  def __init__(self, image_list, mode, mask_list=None, fine_size=202, pad_left=0, pad_right=0):
+    self.imagelist = image_list
+    self.mode = mode
+    self.masklist = mask_list
+    self.fine_size = fine_size
+    self.pad_left = pad_left
+    self.pad_right = pad_right
+
+    def __len__(self):#求图像列表长度
+    return len(self.imagelist)
+
+    def __getitem__(self, idx):
+    image = deepcopy(self.imagelist[idx])
+
+    if self.mode == 'train':
+      mask = deepcopy(self.masklist[idx])
+      label = np.where(mask.sum() == 0, 1.0, 0.0).astype(np.float32)
+
+      if self.fine_size != image.shape[0]:
+        image, mask = do_resize2(image, mask, self.fine_size, self.fine_size)
+
+      if self.pad_left != 0:
+        image, mask = do_center_pad2(image, mask, self.pad_left, self.pad_right)
+
+      image = image.reshape(1, image.shape[0], image.shape[1])
+      mask = mask.reshape(1, mask.shape[0], mask.shape[1])    
+
+      return image, mask, label
+
+    elif self.mode == 'val':
+      mask = deepcopy(self.masklist[idx])
+
+      if self.fine_size != image.shape[0]:
+        image, mask = do_resize2(image, mask, self.fine_size, self.fine_size)
+
+      if self.pad_left != 0:
+        image = do_center_pad(image, self.pad_left, self.pad_right)
+
+      image = image.reshape(1, image.shape[0], image.shape[1])
+      mask = mask.reshape(1, mask.shape[0], mask.shape[1])  
+
+      return image, mask
+
+    elif self.mode == 'test':
+      if self.fine_size != image.shape[0]:
+        image = cv2.resize(image, dsize=(self.fine_size, self.fine_size))
+
+      if self.pad_left != 0:
+        image = do_center_pad(image, self.pad_left, self.pad_right)
+
+      image = image.reshape(1, image.shape[0], image.shape[1])
+
+      return image  
 ```
 ---
 * <font color=red>**np.float32**</font><br>是将改变数值数据类型
@@ -170,5 +230,37 @@ fx|【可选】沿水平轴的比例因子
 fy|【可选】沿垂直轴的比例因子
 interpolation|【可选】插值方式
 
-* <font color=red>**astype（）**</font><br>
-* <font color=red>**astype（）**</font><br>
+* **np.pd**()<br>
+pad(array, pad_width, mode, **kwargs)<br>
+array——表示需要填充的数组；
+
+pad_width——表示每个轴（axis）边缘需要填充的数值数目。
+参数输入方式为：（(before_1, after_1), … (before_N, after_N)），其中(before_1, after_1)表示第1轴两边缘分别填充before_1个和after_1个数值。取值为：{sequence, array_like, int}
+
+mode——表示填充的方式（取值：str字符串或用户提供的函数）,总共有11种填充模式
+‘constant’——表示连续填充相同的值，每个轴可以分别指定填充值，constant_values=（x, y）时前面用x填充，后面用y填充，缺省值填充0
+
+‘edge’——表示用边缘值填充
+
+‘linear_ramp’——表示用边缘递减的方式填充
+
+‘maximum’——表示最大值填充
+
+‘mean’——表示均值填充
+
+‘median’——表示中位数填充
+
+‘minimum’——表示最小值填充
+
+‘reflect’——表示对称填充
+
+‘symmetric’——表示对称填充
+
+‘wrap’——表示用原数组后面的值填充前面，前面的值填充后面
+
+* **np.where**<br>
+* np.where(condition):检查是否满足condition，若满足，返回其坐标。（例如数组中位置）。
+*  <br>
+*  <br>
+* <br>
+* 
